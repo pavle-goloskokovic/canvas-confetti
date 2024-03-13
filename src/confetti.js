@@ -547,8 +547,8 @@
   function confettiCannon(canvas, globalOpts) {
     var isLibCanvas = !canvas;
     var customResizer = prop(globalOpts || {}, 'resize');
-    var allowResize = !!customResizer;
-    var hasResizeEventRegistered = false;
+    // var allowResize = !!customResizer;
+    // var hasResizeEventRegistered = false;
     var globalDisableForReducedMotion = prop(globalOpts, 'disableForReducedMotion', Boolean);
     var shouldUseWorker = canUseWorker && !!prop(globalOpts || {}, 'useWorker');
     var worker = shouldUseWorker ? getWorker() : null;
@@ -630,10 +630,10 @@
         document.body.appendChild(canvas);
       }
 
-      if (allowResize && !initialized) {
+      /*if (allowResize && !initialized) {
         // initialize the size of a user-supplied canvas
         resizer(canvas);
-      }
+      }*/
 
       var size = {
         width: canvas.width,
@@ -690,10 +690,10 @@
       function done() {
         animationObj = null;
 
-        if (allowResize) {
+        /*if (allowResize) {
           hasResizeEventRegistered = false;
           global.removeEventListener('resize', onResize);
-        }
+        }*/
 
         if (isLibCanvas && canvas) {
           document.body.removeChild(canvas);
@@ -702,10 +702,10 @@
         }
       }
 
-      if (allowResize && !hasResizeEventRegistered) {
+      /*if (allowResize && !hasResizeEventRegistered) {
         hasResizeEventRegistered = true;
         global.addEventListener('resize', onResize, false);
-      }
+      }*/
 
       if (worker) {
         return worker.fire(options, size, done);
