@@ -12,7 +12,7 @@
     global.URL &&
     global.URL.createObjectURL);
 
-  var canUsePaths = typeof Path2D === 'function' && typeof DOMMatrix === 'function';
+  // var canUsePaths = typeof Path2D === 'function' && typeof DOMMatrix === 'function';
   var canDrawBitmap = (function () {
     // this mostly supports ssr
     if (!global.OffscreenCanvas) {
@@ -400,7 +400,7 @@
 
     context.beginPath();
 
-    if (canUsePaths && fetti.shape.type === 'path' && typeof fetti.shape.path === 'string' && Array.isArray(fetti.shape.matrix)) {
+    /*if (canUsePaths && fetti.shape.type === 'path' && typeof fetti.shape.path === 'string' && Array.isArray(fetti.shape.matrix)) {
       context.fill(transformPath2D(
         fetti.shape.path,
         fetti.shape.matrix,
@@ -410,7 +410,7 @@
         Math.abs(y2 - y1) * 0.1,
         Math.PI / 10 * fetti.wobble
       ));
-    } else if (fetti.shape.type === 'bitmap') {
+    } else*/ if (fetti.shape.type === 'bitmap') {
       var rotation = Math.PI / 10 * fetti.wobble;
       var scaleX = Math.abs(x2 - x1) * 0.1;
       var scaleY = Math.abs(y2 - y1) * 0.1;
@@ -445,7 +445,7 @@
       context.ellipse ?
         context.ellipse(fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI) :
         ellipse(context, fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI);
-    } else if (fetti.shape === 'star') {
+    } /*else if (fetti.shape === 'star') {
       var rot = Math.PI / 2 * 3;
       var innerRadius = 4 * fetti.scalar;
       var outerRadius = 8 * fetti.scalar;
@@ -465,7 +465,7 @@
         context.lineTo(x, y);
         rot += step;
       }
-    } else {
+    }*/ else {
       context.moveTo(Math.floor(fetti.x), Math.floor(fetti.y));
       context.lineTo(Math.floor(fetti.wobbleX), Math.floor(y1));
       context.lineTo(Math.floor(x2), Math.floor(y2));
@@ -736,7 +736,7 @@
     return defaultFire;
   }
 
-  function transformPath2D(pathString, pathMatrix, x, y, scaleX, scaleY, rotation) {
+  /*function transformPath2D(pathString, pathMatrix, x, y, scaleX, scaleY, rotation) {
     var path2d = new Path2D(pathString);
 
     var t1 = new Path2D();
@@ -814,7 +814,7 @@
       path: path,
       matrix: matrix
     };
-  }
+  }*/
 
   function shapeFromText(textData) {
     var text,
@@ -875,7 +875,7 @@
     getDefaultFire().reset();
   };
   module.exports.create = confettiCannon;
-  module.exports.shapeFromPath = shapeFromPath;
+  // module.exports.shapeFromPath = shapeFromPath;
   module.exports.shapeFromText = shapeFromText;
 }((function () {
   if (typeof window !== 'undefined') {
