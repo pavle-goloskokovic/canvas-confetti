@@ -501,11 +501,11 @@
           size.height = canvas.height = workerSize.height;
         }
 
-        if (!size.width && !size.height) {
+        /*if (!size.width && !size.height) {
           resizer(canvas);
           size.width = canvas.width;
           size.height = canvas.height;
-        }
+        }*/
 
         context.clearRect(0, 0, size.width, size.height);
 
@@ -546,12 +546,14 @@
 
   function confettiCannon(canvas, globalOpts) {
     var isLibCanvas = !canvas;
-    var allowResize = !!prop(globalOpts || {}, 'resize');
+    var customResizer = prop(globalOpts || {}, 'resize');
+    var allowResize = !!customResizer;
     var hasResizeEventRegistered = false;
     var globalDisableForReducedMotion = prop(globalOpts, 'disableForReducedMotion', Boolean);
     var shouldUseWorker = canUseWorker && !!prop(globalOpts || {}, 'useWorker');
     var worker = shouldUseWorker ? getWorker() : null;
-    var resizer = isLibCanvas ? setCanvasWindowSize : setCanvasRectSize;
+    var resizer = typeof customResizer === 'function' ?
+      customResizer : (isLibCanvas ? setCanvasWindowSize : setCanvasRectSize);
     var initialized = (canvas && worker) ? !!canvas.__confetti_initialized : false;
     var preferLessMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion)').matches;
     var animationObj;
@@ -574,8 +576,9 @@
       var temp = particleCount;
       var fettis = [];
 
-      var startX = canvas.width * origin.x;
-      var startY = canvas.height * origin.y;
+      var startSize = workerSize || size;
+      var startX = startSize.width * origin.x;
+      var startY = startSize.height * origin.y;
 
       while (temp--) {
         fettis.push(
@@ -603,7 +606,7 @@
         return animationObj.addFettis(fettis);
       }
 
-      animationObj = animate(canvas, fettis, resizer, size , done);
+      animationObj = animate(canvas, fettis, resizer, size, done);
 
       return animationObj.promise;
     }
@@ -662,17 +665,27 @@
 
           worker.postMessage({
             resize: {
-              width: obj.width,
-              height: obj.height
+              width: size.width = obj.width,
+              height: size.height = obj.height
             }
           });
           return;
         }
 
-        // don't actually query the size here, since this
-        // can execute frequently and rapidly
-        size.width = size.height = null;
+        if (workerSize) {
+          // don't actually query the size here, since this
+          // can execute frequently and rapidly
+          size.width = size.height = null;
+        } else {
+          resizer(canvas);
+          size.width = canvas.width;
+          size.height = canvas.height;
+        }
       }
+
+      fire.resize = onResize;
+
+      // fire.isWorker = !!worker;
 
       function done() {
         animationObj = null;
