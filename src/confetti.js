@@ -430,7 +430,7 @@
       matrix.multiplySelf(new DOMMatrix(fetti.shape.matrix));
 
       var pattern = context.createPattern(bitmapMapper.transform(fetti.shape.bitmap), 'no-repeat');
-      pattern.setTransform(matrix);
+      pattern && pattern.setTransform(matrix);
 
       context.globalAlpha = (1 - progress);
       context.fillStyle = pattern;
