@@ -184,28 +184,33 @@
       }
 
       if (!isWorker && canUseWorker) {
-        var code = [
-          'var CONFETTI, SIZE = {}, module = {};',
-          '(' + main.toString() + ')(this, module, true, SIZE);',
-          'onmessage = function(msg) {',
-          '  if (msg.data.options) {',
-          '    CONFETTI(msg.data.options).then(function () {',
-          '      if (msg.data.callback) {',
-          '        postMessage({ callback: msg.data.callback });',
-          '      }',
-          '    });',
-          '  } else if (msg.data.reset) {',
-          '    CONFETTI && CONFETTI.reset();',
-          '  } else if (msg.data.resize) {',
-          '    SIZE.width = msg.data.resize.width;',
-          '    SIZE.height = msg.data.resize.height;',
-          '  } else if (msg.data.canvas) {',
-          '    SIZE.width = msg.data.canvas.width;',
-          '    SIZE.height = msg.data.canvas.height;',
-          '    CONFETTI = module.exports.create(msg.data.canvas);',
-          '  }',
-          '}',
-        ].join('\n');
+        var code = '(' + (function (main) {
+          var CONFETTI, SIZE = {}, module = {};
+          main(self, module, true, SIZE);
+          onmessage = function(msg) {
+            var data = msg.data;
+            var options = data.options;
+            var callback = data.callback;
+            var resize = data.resize;
+            var canvas = data.canvas;
+            if (options) {
+              CONFETTI(options).then(function () {
+                if (callback) {
+                  postMessage({ callback: callback });
+                }
+              });
+            } else if (data.reset) {
+              CONFETTI && CONFETTI.reset();
+            } else if (resize) {
+              SIZE.width = resize.width;
+              SIZE.height = resize.height;
+            } else if (canvas) {
+              SIZE.width = canvas.width;
+              SIZE.height = canvas.height;
+              CONFETTI = module.exports.create(canvas);
+            }
+          };
+        }).toString() + ')(' + main.toString() + ')';
         try {
           worker = new Worker(URL.createObjectURL(new Blob([code])));
         } catch (e) {
@@ -862,7 +867,7 @@
 
     return {
       type: 'bitmap',
-      // TODO these probably need to be transfered for workers
+      // TODO these probably need to be transferred for workers
       bitmap: canvas.transferToImageBitmap(),
       matrix: [scale, 0, 0, scale, -width * scale / 2, -height * scale / 2]
     };
@@ -877,14 +882,4 @@
   module.exports.create = confettiCannon;
   // module.exports.shapeFromPath = shapeFromPath;
   module.exports.shapeFromText = shapeFromText;
-}((function () {
-  if (typeof window !== 'undefined') {
-    return window;
-  }
-
-  if (typeof self !== 'undefined') {
-    return self;
-  }
-
-  return this || {};
-})(), module, false));
+}(window || self || this || {}, module, false));
