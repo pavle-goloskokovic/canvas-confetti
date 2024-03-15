@@ -290,7 +290,7 @@
     var val = String(str).replace(/[^0-9a-f]/gi, '');
 
     if (val.length < 6) {
-        val = val[0]+val[0]+val[1]+val[1]+val[2]+val[2];
+      val = val[0]+val[0]+val[1]+val[1]+val[2]+val[2];
     }
 
     return {
@@ -405,22 +405,26 @@
 
     context.beginPath();
 
-    /*if (canUsePaths && fetti.shape.type === 'path' && typeof fetti.shape.path === 'string' && Array.isArray(fetti.shape.matrix)) {
+    var shape = fetti.shape;
+    var type = shape.type;
+
+    /*if (canUsePaths && type === 'path' && typeof shape.path === 'string' && Array.isArray(shape.matrix)) {
       context.fill(transformPath2D(
-        fetti.shape.path,
-        fetti.shape.matrix,
+        shape.path,
+        shape.matrix,
         fetti.x,
         fetti.y,
         Math.abs(x2 - x1) * 0.1,
         Math.abs(y2 - y1) * 0.1,
         Math.PI / 10 * fetti.wobble
       ));
-    } else*/ if (fetti.shape.type === 'bitmap') {
+    } else*/ if (type === 'bitmap') {
+      var bitmap = shape.bitmap;
       var rotation = Math.PI / 10 * fetti.wobble;
       var scaleX = Math.abs(x2 - x1) * 0.1;
       var scaleY = Math.abs(y2 - y1) * 0.1;
-      var width = fetti.shape.bitmap.width * fetti.scalar;
-      var height = fetti.shape.bitmap.height * fetti.scalar;
+      var width = bitmap.width * fetti.scalar;
+      var height = bitmap.height * fetti.scalar;
 
       var matrix = new DOMMatrix([
         Math.cos(rotation) * scaleX,
@@ -432,13 +436,13 @@
       ]);
 
       // apply the transform matrix from the confetti shape
-      matrix.multiplySelf(new DOMMatrix(fetti.shape.matrix));
+      matrix.multiplySelf(new DOMMatrix(shape.matrix));
 
-      var pattern = context.createPattern(bitmapMapper.transform(fetti.shape.bitmap), 'no-repeat');
+      var pattern = context.createPattern(bitmapMapper.transform(bitmap), 'no-repeat');
       pattern && pattern.setTransform(matrix);
 
       context.globalAlpha = (1 - progress);
-      context.fillStyle = pattern;
+      context.fillStyle = pattern || 'rgba(0,0,0,0)';
       context.fillRect(
         fetti.x - (width / 2),
         fetti.y - (height / 2),
@@ -446,11 +450,11 @@
         height
       );
       context.globalAlpha = 1;
-    } else if (fetti.shape === 'circle') {
+    } else if (shape === 'circle') {
       context.ellipse ?
         context.ellipse(fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI) :
         ellipse(context, fetti.x, fetti.y, Math.abs(x2 - x1) * fetti.ovalScalar, Math.abs(y2 - y1) * fetti.ovalScalar, Math.PI / 10 * fetti.wobble, 0, 2 * Math.PI);
-    } /*else if (fetti.shape === 'star') {
+    } /*else if (shape === 'star') {
       var rot = Math.PI / 2 * 3;
       var innerRadius = 4 * fetti.scalar;
       var outerRadius = 8 * fetti.scalar;
@@ -823,10 +827,10 @@
 
   function shapeFromText(textData) {
     var text,
-        scalar = 1,
-        color = '#000000',
-        // see https://nolanlawson.com/2022/04/08/the-struggle-of-using-native-emoji-on-the-web/
-        fontFamily = '"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", "Twemoji Mozilla", "system emoji", sans-serif';
+      scalar = 1,
+      color = '#000000',
+      // see https://nolanlawson.com/2022/04/08/the-struggle-of-using-native-emoji-on-the-web/
+      fontFamily = '"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", "Twemoji Mozilla", "system emoji", sans-serif';
 
     if (typeof textData === 'string') {
       text = textData;
