@@ -497,7 +497,7 @@
       function onDone() {
         animationFrame = destroy = null;
 
-        context.clearRect(0, 0, size.width, size.height);
+        context && context.clearRect(0, 0, size.width, size.height);
         bitmapMapper.clear();
 
         done();
@@ -516,11 +516,11 @@
           size.height = canvas.height;
         }*/
 
-        context.clearRect(0, 0, size.width, size.height);
+        context && context.clearRect(0, 0, size.width, size.height);
 
-        animatingFettis = animatingFettis.filter(function (fetti) {
+        animatingFettis = context ? animatingFettis.filter(function (fetti) {
           return updateFetti(context, fetti);
-        });
+        }) : [];
 
         if (animatingFettis.length) {
           animationFrame = raf.frame(update);
